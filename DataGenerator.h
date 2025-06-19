@@ -8,10 +8,13 @@ class DataGenerator : public QObject {
     Q_OBJECT
 
 public:
+    enum Mode { Off, Sine, DC };
+
     explicit DataGenerator(QObject *parent = nullptr);
-    void start();
+
+    void startSine(float amp, float freq);
+    void startDC(float value);
     void stop();
-    void setAmplitude(int amp);
 
 signals:
     void newSample(int ch1, int ch2);
@@ -22,5 +25,7 @@ private slots:
 private:
     QTimer timer;
     float phase = 0.0f;
-    int amplitude = 5;
+    float amplitude = 0.0f;
+    float frequency = 0.0f;
+    Mode mode = Off;
 };

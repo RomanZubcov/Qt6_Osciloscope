@@ -9,9 +9,11 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QSettings>
+#include <QKeyEvent>
 
 #include "OscilloscopeView.h"
 #include "SerialReader.h"
+#include "DataGenerator.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -19,6 +21,9 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void startAcquisition();
@@ -35,6 +40,8 @@ private slots:
 private:
     OscilloscopeView *view;
     SerialReader *reader;
+    DataGenerator *generator;
+    DataGenerator::Mode genMode = DataGenerator::Off;
     QSlider *timeSlider;
     QLabel *timeLabel;
 
