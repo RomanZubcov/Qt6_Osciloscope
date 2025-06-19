@@ -1,5 +1,4 @@
-<<<<<<< HEAD
- #pragma once
+#pragma once
 
 #include <QMainWindow>
 #include <QPushButton>
@@ -8,10 +7,11 @@
 #include <QHBoxLayout>
 #include <QSlider>
 #include <QLabel>
+#include <QCheckBox>
+#include <QSettings>
 
 #include "OscilloscopeView.h"
 #include "SerialReader.h"
-#include "DataGenerator.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -26,8 +26,11 @@ private slots:
     void refreshPorts();
     void onVoltSliderChanged(int value);
     void onTimeSliderChanged(int value);
+    void onTriggerLevelChanged(int value);
+    void onSaveCsv();
+    void onTriggerEnabled(bool checked);
+    void onDarkModeToggled(bool checked);
     void resetZoom();
-
 
 private:
     OscilloscopeView *view;
@@ -38,12 +41,17 @@ private:
     QPushButton *startButton;
     QPushButton *stopButton;
     QPushButton *resetButton;
+    QPushButton *csvButton;
     QComboBox *portComboBox;
-    DataGenerator *generator;
     QSlider *voltSlider;
     QLabel *voltLabel;
+    QSlider *triggerSlider;
+    QCheckBox *triggerCheck;
+    QCheckBox *darkCheck;
+
+    QSettings settings;
 
     void setupUI();
     void connectSignals();
+    void applyPalette(bool dark);
 };
-
