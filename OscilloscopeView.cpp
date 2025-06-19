@@ -78,7 +78,8 @@ void OscilloscopeView::drawWaveform(QPainter &painter) {
     if (numSamples < 2) return;
 
     float xScale = static_cast<float>(w) / bufferSize * timeZoom;
-    float yScale = voltZoom;
+    float pixelsPerDiv = static_cast<float>(h) / verticalDivs;
+    float yScale = pixelsPerDiv * voltZoom / voltsPerDivision;
     float offsetPx = timeOffset * xScale;
 
     painter.setRenderHint(QPainter::Antialiasing);
@@ -91,8 +92,10 @@ void OscilloscopeView::drawWaveform(QPainter &painter) {
         float x1 = (i - 1) * xScale - offsetPx;
         float x2 = i * xScale - offsetPx;
         if (x2 < 0 || x1 > w) continue;
-        painter.drawLine(QPointF(x1, midY - channel1[i - 1] * yScale),
-                         QPointF(x2, midY - channel1[i] * yScale));
+        float v1Prev = channel1[i - 1] * adcToVoltFactor;
+        float v1Curr = channel1[i] * adcToVoltFactor;
+        painter.drawLine(QPointF(x1, midY - v1Prev * yScale),
+                         QPointF(x2, midY - v1Curr * yScale));
     }
 
     painter.setPen(pen2);
@@ -100,8 +103,10 @@ void OscilloscopeView::drawWaveform(QPainter &painter) {
         float x1 = (i - 1) * xScale - offsetPx;
         float x2 = i * xScale - offsetPx;
         if (x2 < 0 || x1 > w) continue;
-        painter.drawLine(QPointF(x1, midY - channel2[i - 1] * yScale),
-                         QPointF(x2, midY - channel2[i] * yScale));
+        float v2Prev = channel2[i - 1] * adcToVoltFactor;
+        float v2Curr = channel2[i] * adcToVoltFactor;
+        painter.drawLine(QPointF(x1, midY - v2Prev * yScale),
+                         QPointF(x2, midY - v2Curr * yScale));
     }
 }
 
@@ -110,6 +115,14 @@ void OscilloscopeView::setTimeZoom(float zoomFactor) {
 }
 void OscilloscopeView::setVoltZoom(float zoomFactor) {
     voltZoom = zoomFactor;
+}
+
+void OscilloscopeView::setAdcToVoltFactor(float factor) {
+    adcToVoltFactor = factor;
+}
+
+void OscilloscopeView::setVoltsPerDivision(float volts) {
+    voltsPerDivision = volts;
 }
 
 void OscilloscopeView::mousePressEvent(QMouseEvent *event) {
@@ -188,8 +201,9 @@ void OscilloscopeView::drawAxes(QPainter &painter) {
 
     for (int i = 0; i <= verticalDivs; ++i) {
         int y = i * h / verticalDivs;
-        int value = static_cast<int>((verticalDivs / 2 - i) * 1000 / voltZoom);
-        painter.drawText(4, y - 2, QString::number(value));
+        float dDiv = (verticalDivs / 2.0f) - i;
+        float value = dDiv * voltsPerDivision / voltZoom;
+        painter.drawText(4, y - 2, QString::number(value, 'f', 1));
     }
 }
 

@@ -11,6 +11,7 @@ Un osciloscop software modern scris în C++ și Qt6, cu două canale (CH1 & CH2)
 - ✅ Grilă osciloscop cu axă X/Y și unități (ms/div, V/div)
 - ✅ Zoom pe X (timp) cu scroll
 - ✅ Zoom pe Y (volt) cu slider vertical
+- ✅ Factor de conversie configurabil pentru a afisa valorile in volti
 - ✅ Pan stânga-dreapta cu mouse drag
 - ✅ Generator de semnal sinusoidal pentru testare locală
 

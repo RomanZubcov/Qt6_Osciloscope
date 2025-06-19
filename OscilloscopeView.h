@@ -17,6 +17,8 @@ public:
     void setZoom(float zoomFactor); // unused
     void setTimeZoom(float zoomFactor);
     void setVoltZoom(float zoomFactor);
+    void setAdcToVoltFactor(float factor);
+    void setVoltsPerDivision(float volts);
     void saveCsv(const QString &fileName, int maxSamples = 5000);
 
 protected:
@@ -40,6 +42,8 @@ private:
     int prevCh1 = 0;
     float timeZoom = 1.0f;
     float voltZoom = 1.0f;
+    float adcToVoltFactor = 1.0f;
+    float voltsPerDivision = 1000.0f;
     float timeOffset = 0.0f; // for pan
     bool panning = false;
     int lastPanX = 0;
