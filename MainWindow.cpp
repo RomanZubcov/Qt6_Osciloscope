@@ -5,7 +5,11 @@
 #include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), view(new OscilloscopeView), reader(new SerialReader(this)), settings("QtOsc", "Oscilloscope")
+    : QMainWindow(parent),
+      view(new OscilloscopeView),
+      reader(new SerialReader(this)),
+      generator(new DataGenerator(this)),
+      settings("QtOsc", "Oscilloscope")
 {
     setupUI();
     connectSignals();
@@ -18,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {
     reader->stop();
+    generator->stop();
 }
 
 void MainWindow::setupUI() {
@@ -96,6 +101,7 @@ void MainWindow::connectSignals() {
     connect(startButton, &QPushButton::clicked, this, &MainWindow::startAcquisition);
     connect(stopButton, &QPushButton::clicked, this, &MainWindow::stopAcquisition);
     connect(reader, &SerialReader::newSample, view, &OscilloscopeView::addSample);
+    connect(generator, &DataGenerator::newSample, view, &OscilloscopeView::addSample);
     connect(voltSlider, &QSlider::valueChanged, this, &MainWindow::onVoltSliderChanged);
     connect(timeSlider, &QSlider::valueChanged, this, &MainWindow::onTimeSliderChanged);
     connect(resetButton, &QPushButton::clicked, this, &MainWindow::resetZoom);
@@ -180,4 +186,25 @@ void MainWindow::applyPalette(bool dark) {
 
 void MainWindow::onDarkModeToggled(bool checked) {
     applyPalette(checked);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+    if (event->key() == Qt::Key_S) {
+        if (genMode == DataGenerator::Sine) {
+            generator->stop();
+            genMode = DataGenerator::Off;
+        } else {
+            generator->startSine(230.0f, 50.0f);
+            genMode = DataGenerator::Sine;
+        }
+    } else if (event->key() == Qt::Key_D) {
+        if (genMode == DataGenerator::DC) {
+            generator->stop();
+            genMode = DataGenerator::Off;
+        } else {
+            generator->startDC(12.0f);
+            genMode = DataGenerator::DC;
+        }
+    }
+    QMainWindow::keyPressEvent(event);
 }
