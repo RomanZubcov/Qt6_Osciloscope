@@ -19,6 +19,10 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
     QVector<int> channel1;
@@ -29,6 +33,9 @@ private:
     int triggerLevel = 128;
     float timeZoom = 1.0f;
     float voltZoom = 1.0f;
+    float timeOffset = 0.0f; // for pan
+    bool panning = false;
+    int lastPanX = 0;
 
     QTimer updateTimer;
 

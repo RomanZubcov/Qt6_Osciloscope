@@ -37,17 +37,20 @@ void MainWindow::setupUI() {
 
     startButton = new QPushButton("▶ Start");
     stopButton  = new QPushButton("■ Stop");
+    resetButton = new QPushButton("Reset Zoom");
 
     QString btnStyle = "QPushButton { padding: 8px 16px; background-color: #007acc; color: white; border: none; border-radius: 4px; }"
                        "QPushButton:hover { background-color: #005f99; }";
 
     startButton->setStyleSheet(btnStyle);
     stopButton->setStyleSheet(btnStyle);
+    resetButton->setStyleSheet(btnStyle);
 
     controls->addWidget(portLabel);
     controls->addWidget(portComboBox);
     controls->addWidget(startButton);
     controls->addWidget(stopButton);
+    controls->addWidget(resetButton);
 
     // Slider Volt/Div
     voltSlider = new QSlider(Qt::Vertical);
@@ -93,6 +96,7 @@ void MainWindow::connectSignals() {
     connect(voltSlider, &QSlider::valueChanged, this, &MainWindow::onVoltSliderChanged);
     connect(generator, &DataGenerator::newSample, view, &OscilloscopeView::addSample);
     connect(timeSlider, &QSlider::valueChanged, this, &MainWindow::onTimeSliderChanged);
+    connect(resetButton, &QPushButton::clicked, this, &MainWindow::resetZoom);
 
 }
 
@@ -117,11 +121,20 @@ void MainWindow::refreshPorts() {
 }
 void MainWindow::onVoltSliderChanged(int value) {
     float zoom = value / 1.0f; // Zoom vertical (1x - 10x)
-    view->setZoom(zoom);
+    view->setVoltZoom(zoom);
     voltLabel->setText(QString("Volt/Div: x%1").arg(value));
 }
 void MainWindow::onTimeSliderChanged(int value) {
     float zoom = value / 1.0f;
     view->setTimeZoom(zoom);
     timeLabel->setText(QString("Time/Div: x%1").arg(value));
+}
+
+void MainWindow::resetZoom() {
+    view->setTimeZoom(1.0f);
+    view->setVoltZoom(1.0f);
+    timeSlider->setValue(1);
+    voltSlider->setValue(1);
+    timeLabel->setText("Time/Div: x1");
+    voltLabel->setText("Volt/Div: x1");
 }
