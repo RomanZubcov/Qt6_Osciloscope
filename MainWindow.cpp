@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QFileDialog>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), view(new OscilloscopeView), reader(new SerialReader(this)), settings("QtOsc", "Oscilloscope")
