@@ -25,6 +25,7 @@ private slots:
     void refreshPorts();
     void onVoltSliderChanged(int value);
     void onTimeSliderChanged(int value);
+    void resetZoom();
 
 
 private:
@@ -35,6 +36,7 @@ private:
 
     QPushButton *startButton;
     QPushButton *stopButton;
+    QPushButton *resetButton;
     QComboBox *portComboBox;
     DataGenerator *generator;
     QSlider *voltSlider;

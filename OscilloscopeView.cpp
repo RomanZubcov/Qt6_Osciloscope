@@ -1,6 +1,8 @@
  #include "OscilloscopeView.h"
 #include <QPainter>
 #include <QPen>
+#include <QMouseEvent>
+#include <QWheelEvent>
 
 OscilloscopeView::OscilloscopeView(QWidget *parent) : QWidget(parent) {
     channel1.fill(0, bufferSize);
@@ -44,6 +46,8 @@ void OscilloscopeView::drawWaveform(QPainter &painter) {
     if (numSamples < 2) return;
 
     float xScale = static_cast<float>(w) / bufferSize * timeZoom;
+    float yScale = voltZoom;
+    float offsetPx = timeOffset * xScale;
 
 
     painter.setRenderHint(QPainter::Antialiasing);
@@ -54,15 +58,21 @@ void OscilloscopeView::drawWaveform(QPainter &painter) {
     // Canal 1
     painter.setPen(pen1);
     for (int i = 1; i < numSamples; ++i) {
-        painter.drawLine((i - 1) * xScale, midY - channel1[i - 1],
-                         i * xScale, midY - channel1[i]);
+        float x1 = (i - 1) * xScale - offsetPx;
+        float x2 = i * xScale - offsetPx;
+        if (x2 < 0 || x1 > w) continue;
+        painter.drawLine(QPointF(x1, midY - channel1[i - 1] * yScale),
+                         QPointF(x2, midY - channel1[i] * yScale));
     }
 
     // Canal 2
     painter.setPen(pen2);
     for (int i = 1; i < numSamples; ++i) {
-        painter.drawLine((i - 1) * xScale, midY - channel2[i - 1],
-                         i * xScale, midY - channel2[i]);
+        float x1 = (i - 1) * xScale - offsetPx;
+        float x2 = i * xScale - offsetPx;
+        if (x2 < 0 || x1 > w) continue;
+        painter.drawLine(QPointF(x1, midY - channel2[i - 1] * yScale),
+                         QPointF(x2, midY - channel2[i] * yScale));
     }
 
 
@@ -72,6 +82,42 @@ void OscilloscopeView::setTimeZoom(float zoomFactor) {
 }
 void OscilloscopeView::setVoltZoom(float zoomFactor) {
     voltZoom = zoomFactor;
+}
+
+void OscilloscopeView::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        panning = true;
+        lastPanX = event->pos().x();
+    }
+}
+
+void OscilloscopeView::mouseMoveEvent(QMouseEvent *event) {
+    if (panning) {
+        int dx = event->pos().x() - lastPanX;
+        lastPanX = event->pos().x();
+        float xScale = static_cast<float>(width()) / bufferSize * timeZoom;
+        timeOffset -= dx / xScale;
+        if (timeOffset < 0) timeOffset = 0;
+        if (timeOffset > bufferSize) timeOffset = bufferSize;
+        update();
+    }
+}
+
+void OscilloscopeView::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        panning = false;
+    }
+}
+
+void OscilloscopeView::wheelEvent(QWheelEvent *event) {
+    if (event->angleDelta().y() > 0)
+        timeZoom *= 1.1f;
+    else
+        timeZoom /= 1.1f;
+    if (timeZoom < 0.1f) timeZoom = 0.1f;
+    if (timeZoom > 10.f) timeZoom = 10.f;
+    update();
+    event->accept();
 }
 void OscilloscopeView::drawGrid(QPainter &painter) {
     int w = width();
@@ -119,7 +165,7 @@ void OscilloscopeView::drawAxes(QPainter &painter) {
     // Volt/div pe Y (cu centru pe 0)
     for (int i = 0; i <= verticalDivs; ++i) {
         int y = i * h / verticalDivs;
-        int value = ((verticalDivs / 2 - i) * 1000); // exemplu: ±4000
+        int value = static_cast<int>((verticalDivs / 2 - i) * 1000 / voltZoom);
         if (i != verticalDivs / 2)
             painter.drawText(4, y - 2, QString::number(value));
         else
