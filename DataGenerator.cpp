@@ -29,9 +29,9 @@ void DataGenerator::generate() {
     if (mode == Sine) {
         float dt = timer.interval() / 1000.0f;
         phase += 2.0f * M_PI * frequency * dt;
-        sample = static_cast<int>(amplitude * std::sin(phase) * 100);
+        sample = static_cast<int>(amplitude * std::sin(phase));
     } else if (mode == DC) {
-        sample = static_cast<int>(amplitude * 100);
+        sample = static_cast<int>(amplitude);
     } else {
         return;
     }
