@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QFileDialog>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
